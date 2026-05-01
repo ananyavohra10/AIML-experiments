@@ -1,0 +1,61 @@
+import matplotlib.pyplot as plt
+
+# Step 1: Your data (longer list, like 100, 150, 165, 200, 220, 645, 753, etc.)
+data = [100, 150, 165, 200, 220, 645, 753, 800, 950, 1100, 1250, 1500]
+labels = [f"X{i}" for i in range(len(data))]
+
+print("Original data:", data)
+print()
+
+# 1) Min–Max normalization (0 to 1)
+# Formula: v' = (v - min) / (max - min)
+min_val = min(data)
+max_val = max(data)
+minmax = [(x - min_val) / (max_val - min_val) for x in data]
+
+print("1) Min–Max (0 to 1):")
+for i in range(len(data)):
+    print(f"{data[i]} → {minmax[i]:.3f}")
+print()
+
+# 2) Z‑score using mean and standard deviation
+# Formula: z = (v - mean) / std
+n = len(data)
+mean = sum(data) / n
+variance = sum((x - mean)**2 for x in data) / n
+std = variance**0.5
+
+z_std = [(x - mean) / std for x in data]
+
+print("2) Z‑score (mean + std):")
+for i in range(len(data)):
+    print(f"{data[i]} → {z_std[i]:.3f}")
+print()
+
+# 3) Z‑score using mean and mean absolute deviation (MAD)
+# Formula: z = (v - mean) / MAD
+# MAD = average of |v_i - mean|
+abs_devs = [abs(x - mean) for x in data]
+mad = sum(abs_devs) / n
+
+z_mad = [(x - mean) / mad for x in data]
+
+print("3) Z‑score (mean + MAD):")
+for i in range(len(data)):
+    print(f"{data[i]} → {z_mad[i]:.3f}")
+print()
+
+# 4) Decimal scaling normalization
+# Formula: v' = v / 10^j
+# Choose smallest j such that max(|v|/10^j) < 1
+max_abs = max(abs(x) for x in data)
+j = 1
+while max_abs / (10**j) >= 1:
+    j += 1
+
+decimal_scaled = [x / (10**j) for x in data]
+
+print("4) Decimal scaling (j =", j, "):")
+for i in range(len(data)):
+    print(f"{data[i]} → {decimal_scaled[i]:.3f}")
+print()
