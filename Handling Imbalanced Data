@@ -1,0 +1,43 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+
+# Create an imbalanced dataset (90% class 0, 10% class 1)
+X, y = make_classification(
+    n_samples=1000, n_features=10, n_informative=6,
+    n_redundant=2, n_classes=2, weights=[0.9, 0.1], random_state=42
+)
+
+df = pd.DataFrame(X, columns=[f'feat_{i}' for i in range(10)])
+df['Target'] = y
+print("Original class distribution:")
+print(df['Target'].value_counts())
+print()
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42
+)
+
+# Baseline model (before balancing)
+model = LogisticRegression(random_state=42)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+print(f"Accuracy before balancing: {accuracy_score(y_test, y_pred):.3f}")
+
+# Manual oversampling: duplicate minority class samples
+minority_idx = y_train == 1
+X_os = np.vstack([X_train, X_train[minority_idx]])
+y_os = np.hstack([y_train, y_train[minority_idx]])
+
+model_os = LogisticRegression(random_state=42)
+model_os.fit(X_os, y_os)
+y_pred_os = model_os.predict(X_test)
+print("Oversampling accuracy:", f"{accuracy_score(y_test, y_pred_os):.3f}")
+
+print("\nClassification Report (Oversampling):")
+print(classification_report(y_test, y_pred_os))
+print("Confusion Matrix:", confusion_matrix(y_test, y_pred_os).tolist())
